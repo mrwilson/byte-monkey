@@ -55,6 +55,6 @@ public class AgentTest {
 
         double percentFailure = counter.get()/10_000f;
 
-        assertThat(percentFailure, is(closeTo(percentFailure, 0.1)));
+        assertThat(percentFailure, is(closeTo(0.5f, 0.1)));
     }
 }
