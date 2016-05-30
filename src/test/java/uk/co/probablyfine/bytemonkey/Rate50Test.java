@@ -1,7 +1,6 @@
 package uk.co.probablyfine.bytemonkey;
 
 import com.ea.agentloader.AgentLoader;
-import org.hamcrest.core.StringContains;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -15,27 +14,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 
-public class AgentTest {
+public class Rate50Test {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    @Test
-    public void shouldThrowExceptionWhenInstrumented_throwPercentageIs100() throws IOException {
-        AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:fault,rate:1");
-
-        expectedException.expect(ByteMonkeyException.class);
-        expectedException.expectMessage(StringContains.containsString("java/io/IOException"));
-
-        new TestObject().printSomething();
-    }
-
-    @Test
-    public void shouldThrowNotExceptionWhenInstrumented_throwPercentageIs0() throws IOException {
-        AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:fault,rate:0");
-
-        new TestObject().printSomething();
-    }
 
     @Test
     public void shouldThrowExceptionWhenInstrumented_throwPercentageIsRoughlyHalf() throws IOException {
@@ -56,20 +38,6 @@ public class AgentTest {
         double percentFailure = counter.get()/10_000f;
 
         assertThat(percentFailure, is(closeTo(0.5f, 0.1)));
-    }
-
-    @Test
-    public void shouldOnlyInstrumentMethodsDeclaredInFilter() throws IOException {
-        AgentLoader.loadAgentClass(
-            ByteMonkeyAgent.class.getName(),
-            "mode:fault,filter:uk/co/probablyfine/bytemonkey/testfiles/TestObject/printSomethingElse"
-        );
-
-        expectedException.expect(ByteMonkeyException.class);
-        expectedException.expectMessage(StringContains.containsString("java/lang/IllegalStateException"));
-
-        new TestObject().printSomething();
-        new TestObject().printSomethingElse();
     }
 
 }
