@@ -9,6 +9,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ByteMonkeyClassTransformer implements ClassFileTransformer {
@@ -16,6 +17,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
     private final OperationMode mode;
     private static Double activationRatio = 1.0;
     private static Random random = new Random();
+    private final Pattern filter;
 
     public ByteMonkeyClassTransformer(String args) {
         Map<String, String> configuration = Arrays
@@ -28,6 +30,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
             );
 
         this.mode = OperationMode.fromLowerCase(configuration.getOrDefault("mode","faults"));
+        this.filter = Pattern.compile(configuration.getOrDefault("filter",".*"));
         activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
 
     }
@@ -47,6 +50,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
         cn.methods.stream()
             .filter(method -> !method.name.startsWith("<"))
+            .filter(method -> matchesPackageAndMethodName(method.name, cn.name))
             .forEach(method -> {
                 createNewInstructions(method).ifPresent(newInstructions -> {
                     method.maxStack += newInstructions.size();
@@ -60,6 +64,12 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
         final ClassWriter cw = new ClassWriter(0);
         cn.accept(cw);
         return cw.toByteArray();
+    }
+
+    private boolean matchesPackageAndMethodName(String methodName, String className) {
+        String fullName = className + "/" + methodName;
+
+        return this.filter.matcher(fullName).find();
     }
 
     private Optional<InsnList> createNewInstructions(MethodNode method) {

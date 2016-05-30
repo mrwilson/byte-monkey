@@ -57,4 +57,19 @@ public class AgentTest {
 
         assertThat(percentFailure, is(closeTo(0.5f, 0.1)));
     }
+
+    @Test
+    public void shouldOnlyInstrumentMethodsDeclaredInFilter() throws IOException {
+        AgentLoader.loadAgentClass(
+            ByteMonkeyAgent.class.getName(),
+            "mode:fault,filter:uk/co/probablyfine/bytemonkey/testfiles/TestObject/printSomethingElse"
+        );
+
+        expectedException.expect(ByteMonkeyException.class);
+        expectedException.expectMessage(StringContains.containsString("java/lang/IllegalStateException"));
+
+        new TestObject().printSomething();
+        new TestObject().printSomethingElse();
+    }
+
 }
