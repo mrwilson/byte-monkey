@@ -29,24 +29,24 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
                 keyValue -> keyValue[1])
             );
 
-        this.mode = OperationMode.fromLowerCase(configuration.getOrDefault("mode","faults"));
+        this.mode = OperationMode.fromLowerCase(configuration.getOrDefault("mode", OperationMode.FAULT.name()));
         this.filter = Pattern.compile(configuration.getOrDefault("filter",".*"));
         activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
 
     }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-        ProtectionDomain protectionDomain, byte[] classfileBuffer
+        ProtectionDomain protectionDomain, byte[] classFileBuffer
     ) throws IllegalClassFormatException {
-        return meddle(classfileBuffer);
+        return meddle(classFileBuffer);
     }
 
-    private byte[] meddle(byte[] classfileBuffer) {
+    private byte[] meddle(byte[] classFileBuffer) {
         ClassNode cn = new ClassNode();
 
-        new ClassReader(classfileBuffer).accept(cn, 0);
+        new ClassReader(classFileBuffer).accept(cn, 0);
 
-        if (cn.name.startsWith("java/") || cn.name.startsWith("sun/") || cn.name.contains("$")) return classfileBuffer;
+        if (cn.name.startsWith("java/") || cn.name.startsWith("sun/") || cn.name.contains("$")) return classFileBuffer;
 
         cn.methods.stream()
             .filter(method -> !method.name.startsWith("<"))
