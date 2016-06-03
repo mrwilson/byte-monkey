@@ -14,10 +14,10 @@ java -javaagent:byte-monkey.jar -jar your-java-app.jar
 
  * **Fault**: Throw exceptions from methods that declare those exceptions
  * **Latency**: Introduce latency on method-calls
-
+ * **Nullify**: Replace the first non-primitive argument to the method with *null*
 ## Options
 
- * `mode`: What mode to run in - currently supports `fault` and `latency`. **Default is fault**
+ * `mode`: What mode to run in - currently supports `fault`, `latency`, and `nullify`. **Default is fault**
  * `rate`: Value between 0 and 1 - how often to activate the fault. **Default is 1, i.e. 100%**
  * `filter`: Only instrument packages or methods matching the (java-style) regex. **Default is .*, i.e. all methods**
 
