@@ -15,6 +15,7 @@ java -javaagent:byte-monkey.jar -jar your-java-app.jar
  * **Fault**: Throw exceptions from methods that declare those exceptions
  * **Latency**: Introduce latency on method-calls
  * **Nullify**: Replace the first non-primitive argument to the method with *null*
+
 ## Options
 
  * `mode`: What mode to run in - currently supports `fault`, `latency`, and `nullify`. **Default is fault**
