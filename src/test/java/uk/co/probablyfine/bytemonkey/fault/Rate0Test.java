@@ -1,9 +1,10 @@
-package uk.co.probablyfine.bytemonkey;
+package uk.co.probablyfine.bytemonkey.fault;
 
 import com.ea.agentloader.AgentLoader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
 import uk.co.probablyfine.bytemonkey.testfiles.TestObject;
 
 import java.io.IOException;
