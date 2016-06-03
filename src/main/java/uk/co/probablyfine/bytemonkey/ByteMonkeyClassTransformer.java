@@ -3,6 +3,7 @@ package uk.co.probablyfine.bytemonkey;
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.ClassWriter;
 import jdk.internal.org.objectweb.asm.Opcodes;
+import jdk.internal.org.objectweb.asm.Type;
 import jdk.internal.org.objectweb.asm.tree.*;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -11,6 +12,7 @@ import java.security.ProtectionDomain;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
@@ -78,8 +80,27 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
         switch (mode) {
             case LATENCY: return createLatency();
             case FAULT:   return throwException(method.exceptions);
+            case NULLIFY: return nullifyParams(method);
             default:      return Optional.empty();
         }
+    }
+
+    private Optional<InsnList> nullifyParams(MethodNode method) {
+        final InsnList list = new InsnList();
+
+        final Type[] argumentTypes = Type.getArgumentTypes(method.desc);
+
+        OptionalInt first = IntStream
+            .range(0, argumentTypes.length)
+            .filter(i -> argumentTypes[i].getSort() == Type.OBJECT)
+            .findFirst();
+
+        if (!first.isPresent()) return Optional.empty();
+
+        list.add(new InsnNode(Opcodes.ACONST_NULL));
+        list.add(new VarInsnNode(Opcodes.ASTORE, first.getAsInt() + 1));
+
+        return Optional.of(addRandomChanceOfFailure(list));
     }
 
     private Optional<InsnList> createLatency() {

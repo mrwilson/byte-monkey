@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 public class Rate100Test {
 
     @Test
-    public void shouldThrowExceptionWhenInstrumented_throwPercentageIs100() throws IOException {
+    public void shouldAddLatency() throws IOException {
         AgentLoader.loadAgentClass(
             ByteMonkeyAgent.class.getName(),
             "mode:latency,rate:1,latency:200,filter:uk/co/probablyfine/bytemonkey/testfiles"
