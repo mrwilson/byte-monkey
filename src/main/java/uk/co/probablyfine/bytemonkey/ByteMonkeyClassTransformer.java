@@ -18,6 +18,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
     private static Double activationRatio = 1.0;
     private static Random random = new Random();
     private final Pattern filter;
+    private final long latency;
 
     public ByteMonkeyClassTransformer(String args) {
         Map<String, String> configuration = Arrays
@@ -30,7 +31,8 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
             );
 
         this.mode = OperationMode.fromLowerCase(configuration.getOrDefault("mode", OperationMode.FAULT.name()));
-        this.filter = Pattern.compile(configuration.getOrDefault("filter",".*"));
+        this.filter = Pattern.compile(configuration.getOrDefault("filter", ".*"));
+        this.latency = Long.valueOf(configuration.getOrDefault("latency","100"));
         activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
 
     }
@@ -81,9 +83,9 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
     }
 
     private Optional<InsnList> createLatency() {
-        InsnList list = new InsnList();
+        final InsnList list = new InsnList();
 
-        list.add(new LdcInsnNode(2000L));
+        list.add(new LdcInsnNode(this.latency));
         list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false));
 
         return Optional.of(addRandomChanceOfFailure(list));
@@ -108,12 +110,6 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
         list.add(new InsnNode(Opcodes.ATHROW));
 
-        list.add(new FrameNode(
-            Opcodes.F_APPEND,   // append to the last stack frame
-            0, new Object[] {}, // no local variables here
-            0, new Object[] {}  // no stack either!
-        ));
-
         return Optional.of(addRandomChanceOfFailure(list));
     }
 
@@ -131,7 +127,15 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
         ));
 
         list.add(new JumpInsnNode(Opcodes.IFEQ, originalCodeLabel));
+
         list.add(newInstructions);
+
+        list.add(new FrameNode(
+            Opcodes.F_APPEND,   // append to the last stack frame
+            0, new Object[] {}, // no local variables here
+            0, new Object[] {}  // no stack either!
+        ));
+
         list.add(originalCodeLabel);
 
         return list;

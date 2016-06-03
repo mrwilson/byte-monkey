@@ -10,4 +10,8 @@ public class TestObject {
     public void printSomethingElse() throws IllegalStateException {
         System.out.println("Goodbye!");
     }
+
+    public void safePrint() {
+        System.out.println("Hi!");
+    }
 }
