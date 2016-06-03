@@ -29,6 +29,10 @@ java -javaagent:byte-monkey.jar=mode:fault,rate:0.5,filter:uk/co/probablyfine/ -
 
 The example above would run in fault mode, activating on 50% of eligible method calls, for anything in the package tree below `uk.co.probablyfine`
 
+### Mode-specific Options
+
+ * `latency`: Duration (in millis) to wait on method calls, only valid when running in **Latency** mode. **Default is 100ms**
+
 ## TODO
 
  * Better docs
