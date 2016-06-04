@@ -24,7 +24,7 @@
                     <archive>
                         <index>true</index>
                         <manifestEntries>
-                            <Premain-Class>uk.co.probablyfine.bytemonkey.ByteMonkeyClassTransformer</Premain-Class>
+                            <Premain-Class>uk.co.probablyfine.bytemonkey.ByteMonkeyAgent</Premain-Class>
                         </manifestEntries>
                     </archive>
                 </configuration>
