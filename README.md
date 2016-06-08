@@ -46,7 +46,7 @@ There is a configuration option available only during this mode:
 
  * `latency`: Duration (in millis) to wait on method calls, only valid when running in **Latency** mode. **Default is 100ms**
 
-Example: `java -javaagefilter:uk/co/probablyfine/nt:byte-monkey.jar=mode:latency,rate:0.5,latency:150 -jar your-java-app.jar`
+Example: `java -javaagent:byte-monkey.jar=mode:latency,rate:0.5,latency:150 -jar your-java-app.jar`
 
 ### Nullify
 
