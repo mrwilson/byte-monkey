@@ -20,7 +20,7 @@ public class Rate50Test {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    //@Test
+    @Test
     public void shouldThrowExceptionWhenInstrumented_throwPercentageIsRoughlyHalf() throws IOException {
         AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:fault,rate:0.5");
 
