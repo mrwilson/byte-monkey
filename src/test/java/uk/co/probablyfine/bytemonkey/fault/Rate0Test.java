@@ -5,7 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
-import uk.co.probablyfine.bytemonkey.testfiles.TestObject;
+import uk.co.probablyfine.bytemonkey.testfiles.FaultTestObject;
 
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ public class Rate0Test {
     public void shouldThrowNotExceptionWhenInstrumented_throwPercentageIs0() throws IOException {
         AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:fault,rate:0");
 
-        new TestObject().printSomething();
+        new FaultTestObject().printSomething();
     }
 
 }

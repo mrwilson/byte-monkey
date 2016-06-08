@@ -2,26 +2,41 @@ package uk.co.probablyfine.bytemonkey;
 
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.tree.*;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
+import jdk.internal.org.objectweb.asm.tree.InsnList;
+import jdk.internal.org.objectweb.asm.tree.MethodNode;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
-    private final OperationMode failureMode;
-    private static Double activationRatio = 1.0;
-    private static Random random = new Random();
-    private final Pattern filter;
-    private final long latency;
     private final AddChanceOfFailure addChanceOfFailure = new AddChanceOfFailure();
 
+    private final OperationMode failureMode;
+    private final AgentArguments arguments;
+    private final FilterByClassAndMethodName filter;
+
     public ByteMonkeyClassTransformer(String args) {
-        Map<String, String> configuration = Arrays
+        Map<String, String> configuration = argumentMap(args);
+
+        long latency = Long.valueOf(configuration.getOrDefault("latency","100"));
+        double activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
+
+        this.arguments = new AgentArguments(latency, activationRatio);
+        this.failureMode = OperationMode.fromLowerCase(configuration.getOrDefault("mode", OperationMode.FAULT.name()));
+        this.filter = new FilterByClassAndMethodName(configuration.getOrDefault("filter", ".*"));
+    }
+
+    private Map<String, String> argumentMap(String args) {
+        return Arrays
             .stream(args.split(","))
             .map(line -> line.split(":"))
             .filter(line -> line.length == 2)
@@ -29,11 +44,6 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
                 keyValue -> keyValue[0],
                 keyValue -> keyValue[1])
             );
-
-        this.failureMode = OperationMode.fromLowerCase(configuration.getOrDefault("mode", OperationMode.FAULT.name()));
-        this.filter = Pattern.compile(configuration.getOrDefault("filter", ".*"));
-        this.latency = Long.valueOf(configuration.getOrDefault("latency","100"));
-        activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
     }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -51,7 +61,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
         cn.methods.stream()
             .filter(method -> !method.name.startsWith("<"))
-            .filter(method -> matchesPackageAndMethodName(method.name, cn.name))
+            .filter(method -> filter.matches(cn.name, method.name))
             .forEach(method -> {
                 createNewInstructions(method).ifPresent(newInstructions -> {
                     method.maxStack += newInstructions.size();
@@ -67,21 +77,12 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
         return cw.toByteArray();
     }
 
-    private boolean matchesPackageAndMethodName(String methodName, String className) {
-        String fullName = className + "/" + methodName;
-
-        return this.filter.matcher(fullName).find();
-    }
-
     private Optional<InsnList> createNewInstructions(MethodNode method) {
-        AgentArguments arguments = new AgentArguments(this.latency);
+        InsnList newInstructions = failureMode.generateByteCode(method, arguments);
 
-        return Optional.ofNullable(
-            addChanceOfFailure.apply(failureMode.generateByteCode(method, arguments))
+        return ofNullable(
+            addChanceOfFailure.apply(newInstructions, arguments.chanceOfFailure())
         );
     }
 
-    public static boolean shouldActivate() {
-        return random.nextDouble() < activationRatio;
-    }
 }

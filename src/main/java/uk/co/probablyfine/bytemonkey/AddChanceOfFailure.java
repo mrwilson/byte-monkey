@@ -3,18 +3,23 @@ package uk.co.probablyfine.bytemonkey;
 import jdk.internal.org.objectweb.asm.Opcodes;
 import jdk.internal.org.objectweb.asm.tree.*;
 
+import java.util.Random;
+
 public class AddChanceOfFailure {
 
-    public InsnList apply(InsnList newInstructions) {
+    private static final Random random = new Random();
+
+    public InsnList apply(InsnList newInstructions, double chanceOfFailure) {
         final InsnList list = new InsnList();
 
         final LabelNode originalCodeLabel = new LabelNode();
 
+        list.add(new LdcInsnNode(chanceOfFailure));
         list.add(new MethodInsnNode(
             Opcodes.INVOKESTATIC,
-            "uk/co/probablyfine/bytemonkey/ByteMonkeyClassTransformer",
+            "uk/co/probablyfine/bytemonkey/AddChanceOfFailure",
             "shouldActivate",
-            "()Z",
+            "(D)Z",
             false // this is not a method on an interface
         ));
 
@@ -31,5 +36,9 @@ public class AddChanceOfFailure {
         list.add(originalCodeLabel);
 
         return list;
+    }
+
+    public static boolean shouldActivate(double chanceOfFailure) {
+        return random.nextDouble() < chanceOfFailure;
     }
 }

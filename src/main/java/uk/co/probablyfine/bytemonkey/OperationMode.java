@@ -29,15 +29,12 @@ public enum OperationMode {
 
             if (exceptionsThrown.size() == 0) return list;
 
-            list.add(new TypeInsnNode(Opcodes.NEW, ByteMonkeyException.typeName()));
-            list.add(new InsnNode(Opcodes.DUP));
             list.add(new LdcInsnNode(exceptionsThrown.get(0)));
-
             list.add(new MethodInsnNode(
-                Opcodes.INVOKESPECIAL,
-                ByteMonkeyException.typeName(),
-                "<init>",
-                "(Ljava/lang/String;)V",
+                Opcodes.INVOKESTATIC,
+                "uk/co/probablyfine/bytemonkey/CreateAndThrowException",
+                "throwOrDefault",
+                "(Ljava/lang/String;)Ljava/lang/Throwable;",
                 false // this is not a method on an interface
             ));
 
@@ -53,15 +50,15 @@ public enum OperationMode {
 
             final Type[] argumentTypes = Type.getArgumentTypes(method.desc);
 
-            OptionalInt first = IntStream
+            final OptionalInt firstNonPrimitiveArgument = IntStream
                 .range(0, argumentTypes.length)
                 .filter(i -> argumentTypes[i].getSort() == Type.OBJECT)
                 .findFirst();
 
-            if (!first.isPresent()) return list;
+            if (!firstNonPrimitiveArgument.isPresent()) return list;
 
             list.add(new InsnNode(Opcodes.ACONST_NULL));
-            list.add(new VarInsnNode(Opcodes.ASTORE, first.getAsInt() + 1));
+            list.add(new VarInsnNode(Opcodes.ASTORE, firstNonPrimitiveArgument.getAsInt() + 1));
 
             return list;
         }

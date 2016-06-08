@@ -3,7 +3,7 @@ package uk.co.probablyfine.bytemonkey.latency;
 import com.ea.agentloader.AgentLoader;
 import org.junit.Test;
 import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
-import uk.co.probablyfine.bytemonkey.testfiles.TestObject;
+import uk.co.probablyfine.bytemonkey.testfiles.FaultTestObject;
 
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ public class Rate100Test {
             "mode:latency,rate:1,latency:200,filter:uk/co/probablyfine/bytemonkey/testfiles"
         );
 
-        long timeTaken = timed(new TestObject()::safePrint);
+        long timeTaken = timed(new FaultTestObject()::safePrint);
 
         assertTrue("Actually took "+timeTaken+"ms", timeTaken >= 200 && timeTaken < 300);
     }
