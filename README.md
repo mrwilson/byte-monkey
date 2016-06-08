@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mrwilson/byte-monkey.png?branch=master)](https://travis-ci.org/mrwilson/byte-monkey)
 
-Bytecode-level fault injection for the JVM.
+Byte-Monkey is a small Java library for testing failure scenarios in JVM applications - it works by instrumenting application code on the fly to deliberately introduce faults like exceptions and latency.
 
 ## How to use
 
