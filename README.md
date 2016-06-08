@@ -96,4 +96,4 @@ This is the core of how Byte-Monkey works:
  * **11:** Create the exception if it has a default constructor, or create a wrapper exception
  * **14:** Throw the exception
 
- For modes other than `fault`, instructions 9 to 14 are replaced with mode-specific instructions.
+For modes other than `fault`, instructions 9 to 14 are replaced with mode-specific instructions.
