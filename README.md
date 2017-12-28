@@ -1,6 +1,7 @@
 # byte-monkey
 
-[![Build Status](https://travis-ci.org/mrwilson/byte-monkey.png?branch=master)](https://travis-ci.org/mrwilson/byte-monkey)
+[![Build Status](https://travis-ci.org/mrwilson/byte-monkey.svg?branch=master)](https://travis-ci.org/mrwilson/byte-monkey)
+[![Coverage Status](https://coveralls.io/repos/github/mrwilson/byte-monkey/badge.svg?branch=master)](https://coveralls.io/github/mrwilson/byte-monkey?branch=master)
 
 Byte-Monkey is a small Java library for testing failure scenarios in JVM applications - it works by instrumenting application code on the fly to deliberately introduce faults like exceptions and latency. Original blogpost [here](http://probablyfine.co.uk/2016/05/30/announcing-byte-monkey/).
 
