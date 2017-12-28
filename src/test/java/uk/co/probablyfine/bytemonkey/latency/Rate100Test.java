@@ -20,7 +20,7 @@ public class Rate100Test {
 
         long timeTaken = timed(new FaultTestObject()::safePrint);
 
-        assertTrue("Actually took "+timeTaken+"ms", timeTaken >= 200 && timeTaken < 300);
+        assertTrue("Actually took "+timeTaken+"ms", timeTaken >= 200 && timeTaken < 500);
     }
 
     public static long timed(Runnable runnable) {
