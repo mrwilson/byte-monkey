@@ -5,6 +5,10 @@
 
 Byte-Monkey is a small Java library for testing failure scenarios in JVM applications - it works by instrumenting application code on the fly to deliberately introduce faults like exceptions and latency. Original blogpost [here](http://probablyfine.co.uk/2016/05/30/announcing-byte-monkey/).
 
+## Download
+
+Latest version: [1.0.0](https://github.com/mrwilson/byte-monkey/releases/download/1.0.0/byte-monkey.jar) 
+
 ## How to use
 
 ```bash
