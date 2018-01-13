@@ -1,10 +1,6 @@
 package uk.co.probablyfine.bytemonkey;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.tree.ClassNode;
-import jdk.internal.org.objectweb.asm.tree.InsnList;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
+import static java.util.Optional.ofNullable;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -14,7 +10,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.ofNullable;
+import jdk.internal.org.objectweb.asm.ClassReader;
+import jdk.internal.org.objectweb.asm.ClassWriter;
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
+import jdk.internal.org.objectweb.asm.tree.InsnList;
+import jdk.internal.org.objectweb.asm.tree.MethodNode;
 
 public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
@@ -54,23 +54,38 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
     private byte[] meddle(byte[] classFileBuffer) {
         ClassNode cn = new ClassNode();
-
         new ClassReader(classFileBuffer).accept(cn, 0);
 
-        if (cn.name.startsWith("java/") || cn.name.startsWith("sun/") || cn.name.contains("$")) return classFileBuffer;
+        if (cn.name.startsWith("java/") || cn.name.startsWith("sun/") || cn.name.contains("$") || cn.name.contains("uk/co/probablyfine/bytemonkey/CreateAndThrowException")) return classFileBuffer;
 
-        cn.methods.stream()
-            .filter(method -> !method.name.startsWith("<"))
-            .filter(method -> filter.matches(cn.name, method.name))
-            .forEach(method -> {
-                createNewInstructions(method).ifPresent(newInstructions -> {
-                    method.maxStack += newInstructions.size();
-                    method.instructions.insertBefore(
-                        method.instructions.getFirst(),
-                        newInstructions
-                    );
-                });
-            });
+        switch (failureMode) {
+	        case SCIRCUIT:
+	            cn.methods.stream()
+	        	.filter(method -> !method.name.startsWith("<"))
+	        	.filter(method -> filter.matches(cn.name, method.name))
+	        	.filter(method -> method.tryCatchBlocks.size() > 0)
+	        	.forEach(method -> {
+	        		System.out.println(method.name);
+	        		InsnList newInstructions = failureMode.generateByteCode(method, arguments);
+	        		method.maxStack += newInstructions.size();
+	        		method.instructions.insert(method.tryCatchBlocks.get(0).start, newInstructions);
+	        	});
+	        	break;
+	        default:
+	          cn.methods.stream()
+	            .filter(method -> !method.name.startsWith("<"))
+	            .filter(method -> filter.matches(cn.name, method.name))
+	            .forEach(method -> {
+	                createNewInstructions(method).ifPresent(newInstructions -> {
+	                    method.maxStack += newInstructions.size();
+	                    method.instructions.insertBefore(
+	                        method.instructions.getFirst(),
+	                        newInstructions
+	                    );
+	                });
+	            });
+	        	break;
+        }
 
         final ClassWriter cw = new ClassWriter(0);
         cn.accept(cw);
