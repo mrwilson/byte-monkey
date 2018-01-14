@@ -12,7 +12,7 @@ public class TryCatchTestObject {
 			String key = format(arg);
 			return getProperty(key, isCacheActivated);
 		} catch (MissingPropertyException e) {
-			System.out.println("exception occured in sourceIndependentTryCatch");
+			System.out.println("MissingPropertyException occured in sourceIndependentTryCatch");
 			return "missing property";
 		}
 	}
@@ -25,7 +25,7 @@ public class TryCatchTestObject {
 			isCacheActivated = getCacheAvailability();
 			return getProperty(key, isCacheActivated);
 		} catch (MissingPropertyException e) {
-			System.out.println("exception occured in sourceDependentTryCatch");
+			System.out.println("MissingPropertyException occured in sourceDependentTryCatch");
 			if (isCacheActivated) {
 				return "missing property";
 			} else {
@@ -39,7 +39,7 @@ public class TryCatchTestObject {
 		try {
 			return getPropertyFromCache(key);
 		} catch (MissingPropertyException e) {
-			System.out.println("exception occured in purelyResilientTryCatch");
+			System.out.println("MissingPropertyException occured in purelyResilientTryCatch");
 			return getPropertyFromFile(key);
 		}
 	}
@@ -70,5 +70,14 @@ public class TryCatchTestObject {
 	}
 	
     public static class CacheDisableException extends RuntimeException {
+    }
+    
+    public static void main(String[] args) {
+        TryCatchTestObject tcTest = new TryCatchTestObject();
+        
+    	System.out.println("~~This is a very basic class running all the time~~");
+        tcTest.sourceIndependentTryCatch();
+        tcTest.sourceDependentTryCatch();
+        tcTest.purelyResilientTryCatch();
     }
 }
