@@ -25,7 +25,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
     private final FilterByClassAndMethodName filter;
 
     public ByteMonkeyClassTransformer(String args) {
-        Map<String, String> configuration = argumentMap(args);
+        Map<String, String> configuration = argumentMap(args == null ? "" : args);
 
         long latency = Long.valueOf(configuration.getOrDefault("latency","100"));
         double activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
@@ -56,7 +56,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
         ClassNode cn = new ClassNode();
         new ClassReader(classFileBuffer).accept(cn, 0);
 
-        if (cn.name.startsWith("java/") || cn.name.startsWith("sun/") || cn.name.contains("$") || cn.name.contains("uk/co/probablyfine/bytemonkey/CreateAndThrowException")) return classFileBuffer;
+        if (cn.name.startsWith("java/") || cn.name.startsWith("sun/") || cn.name.contains("$")) return classFileBuffer;
 
         switch (failureMode) {
 	        case SCIRCUIT:
@@ -65,7 +65,6 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 	        	.filter(method -> filter.matches(cn.name, method.name))
 	        	.filter(method -> method.tryCatchBlocks.size() > 0)
 	        	.forEach(method -> {
-	        		System.out.println(method.name);
 	        		InsnList newInstructions = failureMode.generateByteCode(method, arguments);
 	        		method.maxStack += newInstructions.size();
 	        		method.instructions.insert(method.tryCatchBlocks.get(0).start, newInstructions);
