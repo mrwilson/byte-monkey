@@ -20,6 +20,7 @@ java -javaagent:byte-monkey.jar -jar your-java-app.jar
  * **Fault**: Throw exceptions from methods that declare those exceptions
  * **Latency**: Introduce latency on method-calls
  * **Nullify**: Replace the first non-primitive argument to the method with *null*
+ * **Short-circuit(working)**: Throw corresponding exceptions in the very beginning of try blocks
 
 ## Options
 
