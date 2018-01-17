@@ -14,7 +14,9 @@ import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.ClassWriter;
 import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import jdk.internal.org.objectweb.asm.tree.InsnList;
+import jdk.internal.org.objectweb.asm.tree.LabelNode;
 import jdk.internal.org.objectweb.asm.tree.MethodNode;
+import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
 
 public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
@@ -65,9 +67,31 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 	        	.filter(method -> filter.matches(cn.name, method.name))
 	        	.filter(method -> method.tryCatchBlocks.size() > 0)
 	        	.forEach(method -> {
-	        		InsnList newInstructions = failureMode.generateByteCode(method, arguments);
-	        		method.maxStack += newInstructions.size();
-	        		method.instructions.insert(method.tryCatchBlocks.get(0).start, newInstructions);
+	        		// inject an exception in each try-catch block
+	        		// take the first exception type in catch block
+	        		// TODO: for 1 try -> n catch, we should do n injections
+	        		// TODO: these codes really need to be beautified
+	        		LabelNode ln = method.tryCatchBlocks.get(0).start;
+	        		int i = 0;
+	        		for (TryCatchBlockNode tc : method.tryCatchBlocks) {
+	        			if (ln == tc.start && i > 0) {
+	        				// if two try-catch-block-nodes have the same "start", it indicates that it's one try block with multiple catch
+	        				// so we should only inject one exception each time
+	        				continue;
+	        			}
+		        		InsnList newInstructions = failureMode.generateByteCode(tc, arguments);
+		        		method.maxStack += newInstructions.size();
+		        		method.instructions.insert(tc.start, newInstructions);
+		        		ln = tc.start;
+		        		i++;
+	        		}
+// some beautiful ones for reference
+//	        		method.tryCatchBlocks.forEach(tryCatchNode -> {
+//	        			System.out.println(tryCatchNode.type);
+//		        		InsnList newInstructions = failureMode.generateByteCode(tryCatchNode, arguments);
+//		        		method.maxStack += newInstructions.size();
+//		        		method.instructions.insert(tryCatchNode.start, newInstructions);
+//	        		});
 	        	});
 	        	break;
 	        default:
