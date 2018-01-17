@@ -37,6 +37,10 @@
                 <version>2.19.1</version>
                 <configuration>
                     <reuseForks>false</reuseForks>
+                    <!-- Java 7 introduced stricter verification and changed the class format a bit—to contain a stack map used to verify that code is correct. -->
+                    <!-- Java version or bytecode instrumentation could both be to blame. -->
+                    <!-- So we just close verify to make our short-circuit testing work -->
+                    <argLine>-noverify</argLine>
                 </configuration>
             </plugin>
             <plugin>
