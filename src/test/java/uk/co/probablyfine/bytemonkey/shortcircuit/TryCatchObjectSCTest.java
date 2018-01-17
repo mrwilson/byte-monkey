@@ -1,36 +1,31 @@
 package uk.co.probablyfine.bytemonkey.shortcircuit;
 
-import java.io.IOException;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import com.ea.agentloader.AgentLoader;
-
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
 import uk.co.probablyfine.bytemonkey.testfiles.TryCatchTestObject;
 
-public class VeryBasicTest {
+public class TryCatchObjectSCTest {
 	
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Before
+    public void loadAgent() {
+        AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
+    }
 
     @Test
-    public void veryBasicTestAboutShortcircuit() throws IOException {
-        AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
-
+    public void scMultipleTryCatchTest() {
+        // this time, we do short-circuit testing, exceptions will be injected into the beginning of every try block
+        // hence "_1st line in xxx tc" should not appear in the return value
         TryCatchTestObject tcTest = new TryCatchTestObject();
-        tcTest.multipleTryCatch();
-        tcTest.sourceIndependentTryCatch();
-        tcTest.sourceDependentTryCatch();
-        tcTest.purelyResilientTryCatch();
+        Assert.assertEquals(tcTest.multipleTryCatch(), "_mpe in 1st tc_mpe in 2nd tc");
     }
 
     public static void main(String[] args) {
     	AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
-    	
+
         TryCatchTestObject tcTest = new TryCatchTestObject();
-        tcTest.multipleTryCatch();
+        System.out.println(tcTest.multipleTryCatch());
     }
 }
