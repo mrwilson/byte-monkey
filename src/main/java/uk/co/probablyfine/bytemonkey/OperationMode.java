@@ -12,46 +12,30 @@ import jdk.internal.org.objectweb.asm.tree.LdcInsnNode;
 import jdk.internal.org.objectweb.asm.tree.MethodInsnNode;
 import jdk.internal.org.objectweb.asm.tree.MethodNode;
 import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
-import jdk.internal.org.objectweb.asm.tree.TypeInsnNode;
 import jdk.internal.org.objectweb.asm.tree.VarInsnNode;
 
 public enum OperationMode {
 	SCIRCUIT {
-		@Override
-        public InsnList generateByteCode(MethodNode method, AgentArguments arguments) {
-			final List<TryCatchBlockNode> tryCatchBlocks = method.tryCatchBlocks;
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
 			InsnList list = new InsnList();
 
-            if (tryCatchBlocks.size() == 0) return list;
-            
-//            list.add(new LdcInsnNode(3000L));
-//            list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false));
-//            
-//            list.add(new FieldInsnNode(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"));
-//            list.add(new LdcInsnNode("i know why now"));
-//            list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false));
-            
-            list.add(new LdcInsnNode(tryCatchBlocks.get(0).type));
+            list.add(new LdcInsnNode(tryCatchBlock.type));
             list.add(new MethodInsnNode(
                 Opcodes.INVOKESTATIC,
-                "uk/co/probablyfine/bytemonkey/CreateAndThrowException",
+                "uk/co/probablyfine/bytemonkey/DirectlyThrowException",
                 "throwDirectly",
                 "(Ljava/lang/String;)V",
                 false // this is not a method on an interface
             ));
-//            list.add(new TypeInsnNode(Opcodes.NEW, "uk/co/probablyfine/bytemonkey/testfiles/MissingPropertyException"));
-//            list.add(new InsnNode(Opcodes.DUP));
-//	        list.add(new MethodInsnNode(
-//	        	  Opcodes.INVOKESPECIAL,
-//				  "uk/co/probablyfine/bytemonkey/testfiles/MissingPropertyException",
-//				  "<init>",
-//				  "()V",
-//				  false // this is not a method on an interface
-//	        ));
-//            list.add(new InsnNode(Opcodes.ATHROW));
             
             return list;
         }
+        
+		@Override
+		public InsnList generateByteCode(MethodNode method, AgentArguments arguments) {
+			// won't use this method
+			return null;
+		}
 	},
     LATENCY {
         @Override
@@ -62,6 +46,11 @@ public enum OperationMode {
             list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/Thread", "sleep", "(J)V", false));
 
             return list;
+        }
+        @Override
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        	// won't use this method
+        	return null;
         }
     },
     FAULT {
@@ -86,6 +75,11 @@ public enum OperationMode {
 
             return list;
         }
+        @Override
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        	// won't use this method
+        	return null;
+        }
     },
     NULLIFY {
         @Override
@@ -106,6 +100,11 @@ public enum OperationMode {
 
             return list;
         }
+        @Override
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        	// won't use this method
+        	return null;
+        }
     };
 
     public static OperationMode fromLowerCase(String mode) {
@@ -113,4 +112,5 @@ public enum OperationMode {
     }
 
     public abstract InsnList generateByteCode(MethodNode method, AgentArguments arguments);
+    public abstract InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments);
 }
