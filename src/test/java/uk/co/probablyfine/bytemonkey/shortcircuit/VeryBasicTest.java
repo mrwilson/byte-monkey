@@ -21,8 +21,16 @@ public class VeryBasicTest {
         AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
 
         TryCatchTestObject tcTest = new TryCatchTestObject();
+        tcTest.multipleTryCatch();
         tcTest.sourceIndependentTryCatch();
         tcTest.sourceDependentTryCatch();
         tcTest.purelyResilientTryCatch();
+    }
+
+    public static void main(String[] args) {
+    	AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
+    	
+        TryCatchTestObject tcTest = new TryCatchTestObject();
+        tcTest.multipleTryCatch();
     }
 }

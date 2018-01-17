@@ -1,8 +1,32 @@
 package uk.co.probablyfine.bytemonkey.testfiles;
 
+import java.io.IOException;
 import java.util.Random;
 
 public class TryCatchTestObject {
+	public void multipleTryCatch() {
+		System.out.println("in try right away!!");
+		try {
+			System.out.println("first line in try!!");
+			String arg = getArgument();
+			String key = format(arg);
+		} catch (MissingPropertyException e) {
+			System.out.println("MissingPropertyException occured in sourceIndependentTryCatch");
+		} catch (IOException e) {
+			System.out.println("IOException occured in sourceIndependentTryCatch");
+		}
+		
+		try {
+			System.out.println("first line in 2nd try!!");
+			String arg = getArgument();
+			String key = format(arg);
+		} catch (MissingPropertyException e) {
+			System.out.println("MissingPropertyException occured in sourceIndependentTryCatch");
+		} catch (IOException e) {
+			System.out.println("IOException occured in sourceIndependentTryCatch");
+		}
+	}
+	
 	public String sourceIndependentTryCatch() {
 		Boolean isCacheActivated = false;
 		System.out.println("in try right away!!");
@@ -14,6 +38,9 @@ public class TryCatchTestObject {
 		} catch (MissingPropertyException e) {
 			System.out.println("MissingPropertyException occured in sourceIndependentTryCatch");
 			return "missing property";
+		} catch (IOException e) {
+			System.out.println("IOException occured in sourceIndependentTryCatch");
+			return "get argument failed";
 		}
 	}
 	
@@ -52,7 +79,7 @@ public class TryCatchTestObject {
 		return null;
 	}
 
-	private String getArgument() throws MissingPropertyException {
+	private String getArgument() throws IOException {
 		return null;
 	}
 	
@@ -75,7 +102,7 @@ public class TryCatchTestObject {
     public static void main(String[] args) {
         TryCatchTestObject tcTest = new TryCatchTestObject();
         
-    	System.out.println("~~This is a very basic class running all the time~~");
+    	tcTest.multipleTryCatch();
         tcTest.sourceIndependentTryCatch();
         tcTest.sourceDependentTryCatch();
         tcTest.purelyResilientTryCatch();
