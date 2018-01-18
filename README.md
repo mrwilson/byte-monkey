@@ -1,6 +1,7 @@
 # byte-monkey
 
 [![Build Status](https://travis-ci.org/gluckzhang/byte-monkey.svg?branch=short-circuit-testing)](https://travis-ci.org/gluckzhang/byte-monkey)
+[![Coverage Status](https://coveralls.io/repos/github/gluckzhang/byte-monkey/badge.svg?branch=short-circuit-testing)](https://coveralls.io/github/gluckzhang/byte-monkey?branch=short-circuit-testing)
 
 Byte-Monkey is a small Java library for testing failure scenarios in JVM applications - it works by instrumenting application code on the fly to deliberately introduce faults like exceptions and latency. Original blogpost [here](http://blog.probablyfine.co.uk/2016/05/30/announcing-byte-monkey.html).
 
