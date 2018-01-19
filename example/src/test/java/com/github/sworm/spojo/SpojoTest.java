@@ -3,24 +3,6 @@
  */
 package com.github.sworm.spojo;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static com.github.sworm.spojo.enums.RuleType.*;
-import static com.github.sworm.spojo.model.Gender.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
-import org.hamcrest.Matcher;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.github.sworm.spojo.config.RuleMetadata;
 import com.github.sworm.spojo.config.RuleMetadataImpl;
 import com.github.sworm.spojo.config.SpojoConfiguration;
@@ -31,6 +13,19 @@ import com.github.sworm.spojo.model.Chef;
 import com.github.sworm.spojo.model.Client;
 import com.github.sworm.spojo.model.Gender;
 import com.github.sworm.spojo.model.Shop;
+import org.hamcrest.Matcher;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.*;
+
+import static com.github.sworm.spojo.enums.RuleType.*;
+import static com.github.sworm.spojo.model.Gender.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
+import com.ea.agentloader.AgentLoader;
+import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
 
 /**
  * @author Vincent Palau
@@ -110,6 +105,7 @@ public class SpojoTest extends BaseTestCase {
 
 	@BeforeClass
 	public static void config() {
+		AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:analyzetc");
 
 		List<RuleMetadata> metadataList = new ArrayList<RuleMetadata>();
 		// MetaData definition
