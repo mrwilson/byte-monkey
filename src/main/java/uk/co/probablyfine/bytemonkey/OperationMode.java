@@ -1,18 +1,12 @@
 package uk.co.probablyfine.bytemonkey;
 
+import jdk.internal.org.objectweb.asm.Opcodes;
+import jdk.internal.org.objectweb.asm.Type;
+import jdk.internal.org.objectweb.asm.tree.*;
+
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
-
-import jdk.internal.org.objectweb.asm.Opcodes;
-import jdk.internal.org.objectweb.asm.Type;
-import jdk.internal.org.objectweb.asm.tree.InsnList;
-import jdk.internal.org.objectweb.asm.tree.InsnNode;
-import jdk.internal.org.objectweb.asm.tree.LdcInsnNode;
-import jdk.internal.org.objectweb.asm.tree.MethodInsnNode;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
-import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
-import jdk.internal.org.objectweb.asm.tree.VarInsnNode;
 
 public enum OperationMode {
 	SCIRCUIT {
@@ -37,6 +31,28 @@ public enum OperationMode {
 			return null;
 		}
 	},
+    ANALYZETC {
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+            InsnList list = new InsnList();
+
+            list.add(new LdcInsnNode(tryCatchBlock.start.toString()));
+            list.add(new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "uk/co/probablyfine/bytemonkey/LogTryCatchInfo",
+                    "printInfo",
+                    "(Ljava/lang/String;)V",
+                    false // this is not a method on an interface
+            ));
+
+            return list;
+        }
+
+        @Override
+        public InsnList generateByteCode(MethodNode method, AgentArguments arguments) {
+            // won't use this method
+            return null;
+        }
+    },
     LATENCY {
         @Override
         public InsnList generateByteCode(MethodNode method, AgentArguments arguments) {

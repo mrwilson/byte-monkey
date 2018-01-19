@@ -1,6 +1,8 @@
 package uk.co.probablyfine.bytemonkey;
 
-import static java.util.Optional.ofNullable;
+import jdk.internal.org.objectweb.asm.ClassReader;
+import jdk.internal.org.objectweb.asm.ClassWriter;
+import jdk.internal.org.objectweb.asm.tree.*;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -10,13 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.ClassWriter;
-import jdk.internal.org.objectweb.asm.tree.ClassNode;
-import jdk.internal.org.objectweb.asm.tree.InsnList;
-import jdk.internal.org.objectweb.asm.tree.LabelNode;
-import jdk.internal.org.objectweb.asm.tree.MethodNode;
-import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
+import static java.util.Optional.ofNullable;
 
 public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
@@ -62,6 +58,7 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
         switch (failureMode) {
 	        case SCIRCUIT:
+            case ANALYZETC:
 	            cn.methods.stream()
 	        	.filter(method -> !method.name.startsWith("<"))
 	        	.filter(method -> filter.matches(cn.name, method.name))
