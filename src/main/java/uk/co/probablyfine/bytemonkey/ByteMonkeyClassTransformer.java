@@ -27,8 +27,9 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
         long latency = Long.valueOf(configuration.getOrDefault("latency","100"));
         double activationRatio = Double.valueOf(configuration.getOrDefault("rate","1"));
+        int tcIndex = Integer.valueOf(configuration.getOrDefault("tcindex", "-1"));
 
-        this.arguments = new AgentArguments(latency, activationRatio);
+        this.arguments = new AgentArguments(latency, activationRatio, tcIndex);
         this.failureMode = OperationMode.fromLowerCase(configuration.getOrDefault("mode", OperationMode.FAULT.name()));
         this.filter = new FilterByClassAndMethodName(configuration.getOrDefault("filter", ".*"));
     }
@@ -58,37 +59,66 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
 
         switch (failureMode) {
 	        case SCIRCUIT:
+	            int tcIndex = arguments.tcIndex();
+	            if (tcIndex < 0) {
+                    cn.methods.stream()
+                            .filter(method -> !method.name.startsWith("<"))
+                            .filter(method -> filter.matches(cn.name, method.name))
+                            .filter(method -> method.tryCatchBlocks.size() > 0)
+                            .forEach(method -> {
+                                // inject an exception in each try-catch block
+                                // take the first exception type in catch block
+                                // for 1 try -> n catch, we should do different injections through params
+                                // TODO: these codes really need to be beautified
+                                LabelNode ln = method.tryCatchBlocks.get(0).start;
+                                int i = 0;
+                                for (TryCatchBlockNode tc : method.tryCatchBlocks) {
+                                    if (ln == tc.start && i > 0) {
+                                        // if two try-catch-block-nodes have the same "start", it indicates that it's one try block with multiple catch
+                                        // so we should only inject one exception each time
+                                        continue;
+                                    }
+                                    InsnList newInstructions = failureMode.generateByteCode(tc, tcIndex, arguments);
+                                    method.maxStack += newInstructions.size();
+                                    method.instructions.insert(tc.start, newInstructions);
+                                    ln = tc.start;
+                                    i++;
+                                }
+                            });
+                } else {
+	                // should work together with filter
+                    cn.methods.stream()
+                            .filter(method -> !method.name.startsWith("<"))
+                            .filter(method -> filter.matches(cn.name, method.name))
+                            .filter(method -> method.tryCatchBlocks.size() > 0)
+                            .forEach(method -> {
+                                int index = 0;
+                                for (TryCatchBlockNode tc : method.tryCatchBlocks) {
+                                    if (index == tcIndex) {
+                                        InsnList newInstructions = failureMode.generateByteCode(tc, tcIndex, arguments);
+                                        method.maxStack += newInstructions.size();
+                                        method.instructions.insert(tc.start, newInstructions);
+                                        break;
+                                    } else {
+                                        index ++;
+                                    }
+                                }
+                            });
+                }
+	            break;
             case ANALYZETC:
 	            cn.methods.stream()
 	        	.filter(method -> !method.name.startsWith("<"))
 	        	.filter(method -> filter.matches(cn.name, method.name))
 	        	.filter(method -> method.tryCatchBlocks.size() > 0)
 	        	.forEach(method -> {
-	        		// inject an exception in each try-catch block
-	        		// take the first exception type in catch block
-	        		// TODO: for 1 try -> n catch, we should do n injections
-	        		// TODO: these codes really need to be beautified
-	        		LabelNode ln = method.tryCatchBlocks.get(0).start;
-	        		int i = 0;
+                    int index = 0;
 	        		for (TryCatchBlockNode tc : method.tryCatchBlocks) {
-	        			if (ln == tc.start && i > 0) {
-	        				// if two try-catch-block-nodes have the same "start", it indicates that it's one try block with multiple catch
-	        				// so we should only inject one exception each time
-	        				continue;
-	        			}
-		        		InsnList newInstructions = failureMode.generateByteCode(tc, arguments);
+		        		InsnList newInstructions = failureMode.generateByteCode(tc, index, arguments);
 		        		method.maxStack += newInstructions.size();
 		        		method.instructions.insert(tc.start, newInstructions);
-		        		ln = tc.start;
-		        		i++;
+		        		index ++;
 	        		}
-// some beautiful ones for reference
-//	        		method.tryCatchBlocks.forEach(tryCatchNode -> {
-//	        			System.out.println(tryCatchNode.type);
-//		        		InsnList newInstructions = failureMode.generateByteCode(tryCatchNode, arguments);
-//		        		method.maxStack += newInstructions.size();
-//		        		method.instructions.insert(tryCatchNode.start, newInstructions);
-//	        		});
 	        	});
 	        	break;
 	        default:
