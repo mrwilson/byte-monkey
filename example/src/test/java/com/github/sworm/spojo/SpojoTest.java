@@ -105,7 +105,7 @@ public class SpojoTest extends BaseTestCase {
 
 	@BeforeClass
 	public static void config() {
-		AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:analyzetc");
+		AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:analyzetc,filter:com/github/sworm/spojo");
 
 		List<RuleMetadata> metadataList = new ArrayList<RuleMetadata>();
 		// MetaData definition
