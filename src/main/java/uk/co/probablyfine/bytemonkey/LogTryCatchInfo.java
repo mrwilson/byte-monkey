@@ -1,7 +1,7 @@
 package uk.co.probablyfine.bytemonkey;
 
 public class LogTryCatchInfo {
-    public static void printInfo(String tcPosition) {
+    public static void printInfo(String tcIndex) {
         int stackLengh = Thread.currentThread().getStackTrace().length;
         String executedClassName = Thread.currentThread().getStackTrace()[2].getClassName();
         String executedMethodName = Thread.currentThread().getStackTrace()[2].getMethodName();
@@ -10,7 +10,7 @@ public class LogTryCatchInfo {
         String testMethodName = testClassInfo[1];
 
         // TryCatch Info
-        System.out.println(String.format("INFO ByteMonkey try catch @ %s, %s, %s", tcPosition, executedMethodName, executedClassName));
+        System.out.println(String.format("INFO ByteMonkey try catch index %s, %s @ %s", tcIndex, executedMethodName, executedClassName));
         // Testcase Info
         System.out.println(String.format("INFO ByteMonkey testCase: %s @ %s", testMethodName, testClassName));
         System.out.println("----");

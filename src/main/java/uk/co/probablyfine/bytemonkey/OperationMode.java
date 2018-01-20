@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 public enum OperationMode {
 	SCIRCUIT {
-        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
 			InsnList list = new InsnList();
 
             list.add(new LdcInsnNode(tryCatchBlock.type));
@@ -32,10 +32,10 @@ public enum OperationMode {
 		}
 	},
     ANALYZETC {
-        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
             InsnList list = new InsnList();
 
-            list.add(new LdcInsnNode("" + tryCatchBlock.start.getLabel().toString()));
+            list.add(new LdcInsnNode(tcIndex + " @ " + tryCatchBlock.start.getLabel().toString()));
             list.add(new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     "uk/co/probablyfine/bytemonkey/LogTryCatchInfo",
@@ -64,7 +64,7 @@ public enum OperationMode {
             return list;
         }
         @Override
-        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
         	// won't use this method
         	return null;
         }
@@ -92,7 +92,7 @@ public enum OperationMode {
             return list;
         }
         @Override
-        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
         	// won't use this method
         	return null;
         }
@@ -117,7 +117,7 @@ public enum OperationMode {
             return list;
         }
         @Override
-        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments) {
+        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
         	// won't use this method
         	return null;
         }
@@ -128,5 +128,5 @@ public enum OperationMode {
     }
 
     public abstract InsnList generateByteCode(MethodNode method, AgentArguments arguments);
-    public abstract InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, AgentArguments arguments);
+    public abstract InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments);
 }
