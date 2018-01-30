@@ -102,7 +102,7 @@ Methods with only primitive arguments or no arguments at all will not be affecte
 ### Short-circuit
 
 Throw corresponding exceptions in the very beginning of try blocks.
-What is short-circuit testing? What is this used for? You can [read this paper][3] or [my article][4] first.
+What is short-circuit testing? What is this used for? You can read [this paper](https://hal.inria.fr/hal-01062969/document) or [my blog](http://blog.gluckzhang.com/archives/107/) first.
 
 ### Try-catch Analysis
 
