@@ -1,13 +1,14 @@
 # byte-monkey
 
-[![Build Status](https://travis-ci.org/gluckzhang/byte-monkey.svg?branch=short-circuit-testing)](https://travis-ci.org/gluckzhang/byte-monkey)
-[![Coverage Status](https://coveralls.io/repos/github/gluckzhang/byte-monkey/badge.svg?branch=short-circuit-testing)](https://coveralls.io/github/gluckzhang/byte-monkey?branch=short-circuit-testing)
+[![Build Status](https://travis-ci.org/mrwilson/byte-monkey.svg?branch=master)](https://travis-ci.org/mrwilson/byte-monkey)
+[![Coverage Status](https://coveralls.io/repos/github/mrwilson/byte-monkey/badge.svg?branch=master)](https://coveralls.io/github/mrwilson/byte-monkey?branch=master)
 
-Byte-Monkey is a small Java library for testing failure scenarios in JVM applications - it works by instrumenting application code on the fly to deliberately introduce faults like exceptions and latency. Original blogpost [here](http://blog.probablyfine.co.uk/2016/05/30/announcing-byte-monkey.html). And in this branch, we will add some features for byte-monkey: **throwing corresponding exceptions in the very beginning of try blocks**. It's some relevant work about short-circuit testing. What is short-circuit testing? What is this used for? You can read [this paper](https://hal.inria.fr/hal-01062969/document) or [my blog](http://blog.gluckzhang.com/archives/107/) first.
+Byte-Monkey is a small Java library for testing failure scenarios in JVM applications - it works by instrumenting application code on the fly to deliberately introduce faults like exceptions and latency. Original blogpost [here](http://blog.probablyfine.co.uk/2016/05/30/announcing-byte-monkey.html).
+
 
 ## Download
 
-Original latest version: [1.0.0](https://github.com/mrwilson/byte-monkey/releases/download/1.0.0/byte-monkey.jar)
+Latest version: [1.0.0](https://github.com/mrwilson/byte-monkey/releases/download/1.0.0/byte-monkey.jar)
 
 ## How to use
 
@@ -102,7 +103,7 @@ Methods with only primitive arguments or no arguments at all will not be affecte
 ### Short-circuit
 
 Throw corresponding exceptions in the very beginning of try blocks.
-What is short-circuit testing? What is this used for? You can read [this paper](https://hal.inria.fr/hal-01062969/document) or [my blog](http://blog.gluckzhang.com/archives/107/) first.
+What is short-circuit testing? What is this used for? You can read [this paper](https://hal.inria.fr/hal-01062969/document) or [this blog](http://blog.gluckzhang.com/archives/107/) first.
 
 ### Try-catch Analysis
 
@@ -214,20 +215,3 @@ public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, A
     return list;
 }
 ```
-
-## Questions
-
-- How to handle try-catch nesting? Do we need to define a injection level?
-
-## TODO
-
-- `√` Handle one try with multiple catch blocks
-
-> In this case, the test case should be excuted for more times, every time different exception is injected into the try block.
-> Byte-monkey can support more parameters in short-circuit mode now, besides filter, we can use `tcindex` to declare the specific type of exception you want to inject.
-
-- `√` Integrate with Maven/JUnit/TestNG... to do automatic testing
-
-> This is mainly used for try-catch analysis, but the most important goal for us is chaos engineering, i.e. injecting kinds of exceptions into production environment and learning from the system's reaction, to help build the confidence of system behavior.
-
-- Define a injection rate in short-circuit mode
