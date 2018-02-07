@@ -21,14 +21,14 @@ java -javaagent:byte-monkey.jar -jar your-java-app.jar
  * **Fault**: Throw exceptions from methods that declare those exceptions
  * **Latency**: Introduce latency on method-calls
  * **Nullify**: Replace the first non-primitive argument to the method with *null*
- * **Short-circuit**: Throw corresponding exceptions in the very beginning of try blocks
+ * **Short-circuit**: Throw corresponding exceptions at the very beginning of try blocks
 
 ## Options
 
  * `mode`: What mode to run in - currently supports `fault`, `latency`, `nullify`, and `scircuit`. **Default is fault**
  * `rate`: Value between 0 and 1 - how often to activate the fault. **Default is 1, i.e. 100%**
  * `filter`: Only instrument packages or methods matching the (java-style) regex. **Default is .*, i.e. all methods**
-
+ 
 byte-monkey is configured with a comma-separated key-value pair string of the options as the agent argument.
 
 ```bash
@@ -36,14 +36,6 @@ java -javaagent:byte-monkey.jar=mode:fault,rate:0.5,filter:uk/co/probablyfine/ -
 ```
 
 The example above would run in fault mode, activating on 50% of eligible method calls, for anything in the package tree below `uk.co.probablyfine`
-
-As for specific fault injection in try-catch blocks, you can use the following command:
-
-```bash
-java -javaagent:byte-monkey.jar=mode:scircuit,filter:package/path/ClassName/MethodName,tcindex=0 -jar your-java-app.jar
-```
-
-You can declare the exception type using `tcindex`, for example, the try block is corresponding to 2 catch blocks, then `tcindex 0` indicates the first type of exception in the catch block.
 
 ## Modes
 
@@ -71,8 +63,18 @@ Methods with only primitive arguments or no arguments at all will not be affecte
 
 ### Short-circuit
 
-Throw corresponding exceptions in the very beginning of try blocks.
-What is short-circuit testing? What is this used for? You can read [this paper](https://hal.inria.fr/hal-01062969/document) or [this blog](http://blog.gluckzhang.com/archives/107/) first.
+Running byte-monkey in `scircuit` mode will throw corresponding exceptions in the very beginning of try blocks.
+
+There is a configuration option available only during this mode:
+
+ * `tcindex`: Index of which exception to throw when there are multiple catch blocks, e.g. `tcindex=0` indicates the first type of exception in the catch block. Only valid when running in **Short-circuit** mode. **Default is -1/first**
+
+Example:
+```bash
+java -javaagent:byte-monkey.jar=mode:scircuit,filter:package/path/ClassName/MethodName,tcindex=0 -jar your-java-app.jar
+```
+
+You can read [this paper](https://hal.inria.fr/hal-01062969/document) or [this blog](http://blog.gluckzhang.com/archives/107/) for more information about short-circuit testing.
 
 ## Implementation Details
 
@@ -117,66 +119,3 @@ This is the core of how Byte-Monkey works:
  * **14:** Throw the exception
 
 For modes other than `fault`, instructions 9 to 14 are replaced with mode-specific instructions.
-
-### About the new mode to do short-circuit testing
-
-Based on Instrumentation API and byte-monkey's codes, mainly update the `ByteMonkeyClassTransformer` to support new mode "scircuit", and add new code snippet into enum `OperationMode`.
-
-- In `ByteMonkeyClassTransformer`: find the right position (beginning of try blocks) to inject codes
-
-```java
-switch (failureMode) {
-    case SCIRCUIT:
-        int tcIndex = arguments.tcIndex();
-        if (tcIndex < 0) {
-            cn.methods.stream()
-                    .filter(method -> !method.name.startsWith("<"))
-                    .filter(method -> filter.matches(cn.name, method.name))
-                    .filter(method -> method.tryCatchBlocks.size() > 0)
-                    .forEach(method -> {
-                        // inject an exception in each try-catch block
-                        // take the first exception type in catch block
-                        // for 1 try -> n catch, we should do different injections through params
-                        LabelNode ln = method.tryCatchBlocks.get(0).start;
-                        int i = 0;
-                        for (TryCatchBlockNode tc : method.tryCatchBlocks) {
-                            if (ln == tc.start && i > 0) {
-                                // if two try-catch-block-nodes have the same "start", it indicates that it's one try block with multiple catch
-                                // so we should only inject one exception each time
-                                continue;
-                            }
-                            InsnList newInstructions = failureMode.generateByteCode(tc, tcIndex, arguments);
-                            method.maxStack += newInstructions.size();
-                            method.instructions.insert(tc.start, newInstructions);
-                            ln = tc.start;
-                            i++;
-                        }
-                    });
-        } else {
-            // should work together with filter, inject an exception into specific position
-            ...
-        }
-        break;
-    default:
-        ...
-}
-```
-
-- In `OperationMode`: generate exception throwing method. `DirectlyThrowException` is a method who throws an exception, the type of the exception is defined in its parameter.
-
-```java
-public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
-    InsnList list = new InsnList();
-
-    list.add(new LdcInsnNode(tryCatchBlock.type));
-    list.add(new MethodInsnNode(
-        Opcodes.INVOKESTATIC,
-        "uk/co/probablyfine/bytemonkey/DirectlyThrowException",
-        "throwDirectly",
-        "(Ljava/lang/String;)V",
-        false // this is not a method on an interface
-    ));
-    
-    return list;
-}
-```
