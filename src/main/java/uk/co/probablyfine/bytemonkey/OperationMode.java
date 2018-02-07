@@ -31,28 +31,6 @@ public enum OperationMode {
 			return null;
 		}
 	},
-    ANALYZETC {
-        public InsnList generateByteCode(TryCatchBlockNode tryCatchBlock, int tcIndex, AgentArguments arguments) {
-            InsnList list = new InsnList();
-
-            list.add(new LdcInsnNode(tcIndex + " @ " + tryCatchBlock.start.getLabel().toString()));
-            list.add(new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    "uk/co/probablyfine/bytemonkey/LogTryCatchInfo",
-                    "printInfo",
-                    "(Ljava/lang/String;)V",
-                    false // this is not a method on an interface
-            ));
-
-            return list;
-        }
-
-        @Override
-        public InsnList generateByteCode(MethodNode method, AgentArguments arguments) {
-            // won't use this method
-            return null;
-        }
-    },
     LATENCY {
         @Override
         public InsnList generateByteCode(MethodNode method, AgentArguments arguments) {
