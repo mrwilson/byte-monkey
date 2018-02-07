@@ -106,21 +106,6 @@ public class ByteMonkeyClassTransformer implements ClassFileTransformer {
                             });
                 }
 	            break;
-            case ANALYZETC:
-	            cn.methods.stream()
-	        	.filter(method -> !method.name.startsWith("<"))
-	        	.filter(method -> filter.matches(cn.name, method.name))
-	        	.filter(method -> method.tryCatchBlocks.size() > 0)
-	        	.forEach(method -> {
-                    int index = 0;
-	        		for (TryCatchBlockNode tc : method.tryCatchBlocks) {
-		        		InsnList newInstructions = failureMode.generateByteCode(tc, index, arguments);
-		        		method.maxStack += newInstructions.size();
-		        		method.instructions.insert(tc.start, newInstructions);
-		        		index ++;
-	        		}
-	        	});
-	        	break;
 	        default:
 	          cn.methods.stream()
 	            .filter(method -> !method.name.startsWith("<"))
