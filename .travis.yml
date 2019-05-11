@@ -1,5 +1,12 @@
 language: java
 jdk:
   - oraclejdk8
+  - oraclejdk9
+  - oraclejdk11
 after_script:
   - mvn clean test jacoco:report coveralls:report -Dcoveralls.token=$coveralls_repo_token
+
+matrix:
+  allow_failures:
+  - jdk: oraclejdk9
+  - jdk: oraclejdk11
