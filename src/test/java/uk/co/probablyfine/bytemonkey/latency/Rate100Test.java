@@ -1,22 +1,19 @@
 package uk.co.probablyfine.bytemonkey.latency;
 
-import com.ea.agentloader.AgentLoader;
 import org.junit.Test;
-import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
 import uk.co.probablyfine.bytemonkey.testfiles.FaultTestObject;
 
 import java.io.IOException;
+import java.lang.instrument.UnmodifiableClassException;
 
 import static org.junit.Assert.assertTrue;
+import static uk.co.probablyfine.bytemonkey.TestUtils.installAgent;
 
 public class Rate100Test {
 
     @Test
-    public void shouldAddLatency() throws IOException {
-        AgentLoader.loadAgentClass(
-            ByteMonkeyAgent.class.getName(),
-            "mode:latency,rate:1,latency:200,filter:uk/co/probablyfine/bytemonkey/testfiles"
-        );
+    public void shouldAddLatency() throws IOException, UnmodifiableClassException {
+        installAgent("mode:latency,rate:1,latency:200,filter:uk/co/probablyfine/bytemonkey/testfiles");
 
         long timeTaken = timed(new FaultTestObject()::safePrint);
 

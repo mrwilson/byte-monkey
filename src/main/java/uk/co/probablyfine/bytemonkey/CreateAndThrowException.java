@@ -19,7 +19,7 @@ public class CreateAndThrowException {
             Class<?> p = Class.forName(dotSeparatedClassName, false, ClassLoader.getSystemClassLoader());
 
             if (Throwable.class.isAssignableFrom(p)) {
-                return (Throwable) p.newInstance();
+                return (Throwable) p.getDeclaredConstructor().newInstance();
             } else {
                 return new ByteMonkeyException(name);
             }

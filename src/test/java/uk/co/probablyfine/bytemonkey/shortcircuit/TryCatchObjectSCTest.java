@@ -1,17 +1,17 @@
 package uk.co.probablyfine.bytemonkey.shortcircuit;
 
-import com.ea.agentloader.AgentLoader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
 import uk.co.probablyfine.bytemonkey.testfiles.TryCatchTestObject;
+
+import static uk.co.probablyfine.bytemonkey.TestUtils.installAgent;
 
 public class TryCatchObjectSCTest {
 	
     @Before
     public void loadAgent() {
-        AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
+        installAgent("mode:scircuit");
     }
 
     @Test
@@ -23,7 +23,7 @@ public class TryCatchObjectSCTest {
     }
 
     public static void main(String[] args) {
-    	AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:scircuit");
+    	installAgent("mode:scircuit");
 
         TryCatchTestObject tcTest = new TryCatchTestObject();
         System.out.println(tcTest.multipleTryCatch());

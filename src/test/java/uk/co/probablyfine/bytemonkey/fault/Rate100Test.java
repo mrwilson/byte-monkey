@@ -1,13 +1,13 @@
 package uk.co.probablyfine.bytemonkey.fault;
 
-import com.ea.agentloader.AgentLoader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import uk.co.probablyfine.bytemonkey.ByteMonkeyAgent;
 import uk.co.probablyfine.bytemonkey.testfiles.FaultTestObject;
 
 import java.io.IOException;
+
+import static uk.co.probablyfine.bytemonkey.TestUtils.installAgent;
 
 public class Rate100Test {
 
@@ -16,7 +16,7 @@ public class Rate100Test {
 
     @Test
     public void shouldThrowExceptionWhenInstrumented_throwPercentageIs100() throws IOException {
-        AgentLoader.loadAgentClass(ByteMonkeyAgent.class.getName(), "mode:fault,rate:1");
+        installAgent("mode:fault,rate:1,filter:uk/co/probablyfine/bytemonkey/testfiles/FaultTestObject");
 
         expectedException.expect(IOException.class);
 
