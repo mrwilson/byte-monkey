@@ -9,3 +9,4 @@ after_script:
 matrix:
   allow_failures:
   - jdk: oraclejdk8
+  - jdk: oraclejdk9
