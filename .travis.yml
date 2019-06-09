@@ -1,12 +1,12 @@
 language: java
 jdk:
-  - oraclejdk8
-  - oraclejdk9
-  - oraclejdk11
+  - openjdk8
+  - openjdk9
+  - openjdk11
 after_script:
-  - mvn clean test jacoco:report coveralls:report -Dcoveralls.token=$coveralls_repo_token
+  - mvn test jacoco:report coveralls:report -Dcoveralls.token=$coveralls_repo_token
 
 matrix:
   allow_failures:
-  - jdk: oraclejdk9
-  - jdk: oraclejdk11
+  - jdk: openjdk8
+  - jdk: openjdk9
